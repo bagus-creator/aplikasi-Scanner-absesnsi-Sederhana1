@@ -2,3 +2,5 @@ flask
 openpyxl
 qrcode[pil]
 reportlab
+gunicorn
+requests
