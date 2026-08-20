@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Kelola Sesi Absensi - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2"></i>Kelola Sesi Absensi</h4>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+</div>
+
+<div class="row">
+    <div class="col-md-5 mb-4">
+        <div class="card">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-plus-circle me-2"></i>Tambah Sesi Baru
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('admin_tambah_sesi') }}">
+                    <div class="input-group">
+                        <input type="text" name="nama" class="form-control" placeholder="Nama sesi (misal: Absen Awal, Ishoma 1...)" required>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-plus-lg me-1"></i>Tambah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7 mb-4">
+        <div class="card">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-list-ul me-2"></i>Daftar Sesi
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nama Sesi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sesi_list %}
+                            <tr>
+                                <td><code>{{ s.id }}</code></td>
+                                <td>{{ s.nama }}</td>
+                                <td>
+                                    {% if s.aktif %}
+                                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Aktif</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Nonaktif</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        {% if not s.aktif %}
+                                        <a href="{{ url_for('admin_activate_sesi', sid=s.id) }}" class="btn btn-outline-success" title="Aktifkan Sesi"><i class="bi bi-play-circle"></i></a>
+                                        {% else %}
+                                        <span class="btn btn-success btn-sm" disabled title="Sesi Sedang Aktif"><i class="bi bi-check-circle"></i></span>
+                                        {% endif %}
+                                        <a href="{{ url_for('admin_hapus_sesi', sid=s.id) }}" class="btn btn-outline-danger" title="Hapus Sesi" onclick="return confirm('Hapus sesi &quot;{{ s.nama }}&quot;? Semua data absensi sesi ini juga akan dihapus.')"><i class="bi bi-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if not sesi_list %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">Belum ada sesi absensi.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if active_sesi %}
+<div class="alert alert-success d-flex align-items-center" role="alert">
+    <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+    <div>
+        Sesi aktif saat ini: <strong>{{ active_sesi.nama }}</strong>. Scan QR akan dicatat ke sesi ini.
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+    <div>
+        Tidak ada sesi yang aktif. <strong>Aktifkan salah satu sesi</strong> sebelum melakukan scan absensi.
+    </div>
+</div>
+{% endif %}
+{% endblock %}

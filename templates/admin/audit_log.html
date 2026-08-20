@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Scan - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-clock-history me-2"></i>Riwayat Scan / Audit Log</h4>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, ID, atau sesi..." onkeyup="filterTable()">
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="logTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>Waktu</th>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Aksi</th>
+                        <th>Sesi</th>
+                        <th>Status</th>
+                        <th>Detail</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="small">{{ log.waktu }}</td>
+                        <td><code>{{ log.id_peserta }}</code></td>
+                        <td>{{ log.nama_peserta }}</td>
+                        <td>{{ log.aksi }}</td>
+                        <td>{{ log.sesi }}</td>
+                        <td>
+                            {% if log.status == 'Success' %}
+                            <span class="badge bg-success">{{ log.status }}</span>
+                            {% elif log.status == 'Warning' %}
+                            <span class="badge bg-warning text-dark">{{ log.status }}</span>
+                            {% elif log.status == 'Error' %}
+                            <span class="badge bg-danger">{{ log.status }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ log.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ log.detail or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% if not logs %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Belum ada riwayat scan.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterTable() {
+    const val = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#logTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(val) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

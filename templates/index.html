@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Beranda - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+    <div class="col-md-8 text-center">
+        <div class="mb-4">
+            <i class="bi bi-qr-code-scan text-primary" style="font-size: 5rem;"></i>
+        </div>
+        <h1 class="display-5 fw-bold text-primary mb-3">{{ config.get('event_name', 'Absensi Event') }}</h1>
+        <p class="lead text-muted mb-2">Sistem absensi digital dengan scan QR Code</p>
+        <p class="text-muted mb-4">
+            "Jangan Sedih Kawan Dia Tak Peduli Dengan Air Matamu"
+        </p>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-4">
+            <a href="{{ url_for('scan') }}" class="btn btn-scan">
+                <i class="bi bi-upc-scan me-2"></i>Scan Absensi
+            </a>
+            <a href="{{ url_for('register') }}" class="btn btn-success btn-lg rounded-pill px-4">
+                <i class="bi bi-person-plus me-2"></i>Daftar Peserta
+            </a>
+            <a href="{{ url_for('admin_login') }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">
+                <i class="bi bi-person-lock me-2"></i>Admin
+            </a>
+        </div>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card p-3">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0" id="stat-total">-</h5>
+                        <small class="text-muted">Total Peserta</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card p-3">
+                    <div class="card-body text-center">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0" id="stat-hadir">-</h5>
+                        <small class="text-muted">Sudah Hadir</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card p-3">
+                    <div class="card-body text-center">
+                        <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                        <h5 class="mt-2 mb-0" id="stat-belum">-</h5>
+                        <small class="text-muted">Belum Hadir</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function loadStats() {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            document.getElementById('stat-total').textContent = data.total;
+            document.getElementById('stat-hadir').textContent = data.hadir;
+            document.getElementById('stat-belum').textContent = data.belum;
+        } catch (e) { console.error(e); }
+    }
+    loadStats();
+    setInterval(loadStats, 5000);
+</script>
+{% endblock %}

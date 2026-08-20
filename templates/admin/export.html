@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Export Hasil Kegiatan - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-file-earmark-excel me-2"></i>Export Hasil Kegiatan</h4>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-download me-2"></i>Pilih Sesi untuk Export
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Pilih sesi absensi yang ingin di-export ke file Excel. File akan berisi data lengkap kehadiran peserta pada sesi tersebut.</p>
+
+                {% if sesi_list %}
+                <div class="list-group">
+                    {% for s in sesi_list %}
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1 fw-bold">
+                                {% if s.aktif %}
+                                <span class="badge bg-success me-2">Aktif</span>
+                                {% endif %}
+                                {{ s.nama }}
+                            </h6>
+                            <small class="text-muted">ID Sesi: {{ s.id }}</small>
+                        </div>
+                        <a href="{{ url_for('admin_export_excel_download', sid=s.id) }}" class="btn btn-success btn-sm">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Download Excel
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                    <p class="mt-2">Belum ada sesi absensi. <a href="{{ url_for('admin_sesi') }}">Buat sesi baru</a></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

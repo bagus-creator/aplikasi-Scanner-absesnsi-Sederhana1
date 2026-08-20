@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Admin - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h4>
+    <div>
+        <a href="{{ url_for('admin_peserta') }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-people me-1"></i>Peserta</a>
+        <a href="{{ url_for('admin_tambah_peserta') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Tambah</a>
+        <a href="{{ url_for('admin_sesi') }}" class="btn btn-outline-warning btn-sm"><i class="bi bi-calendar-check me-1"></i>Sesi</a>
+        <a href="{{ url_for('admin_cetak') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Cetak QR</a>
+        <a href="{{ url_for('admin_export_excel') }}" class="btn btn-outline-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Export Excel</a>
+        <a href="{{ url_for('admin_settings') }}" class="btn btn-outline-dark btn-sm"><i class="bi bi-gear me-1"></i>Settings</a>
+    </div>
+</div>
+
+{% if active_sesi %}
+<div class="alert alert-success d-flex align-items-center mb-3">
+    <i class="bi bi-calendar-check-fill me-2"></i>
+    <strong>Sesi Aktif: {{ active_sesi.nama }}</strong>
+</div>
+{% else %}
+<div class="alert alert-warning d-flex align-items-center mb-3">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <strong>Tidak ada sesi aktif.</strong> <a href="{{ url_for('admin_sesi') }}">Aktifkan sesi</a> untuk mulai absensi.
+</div>
+{% endif %}
+
+{% if sesi_list %}
+<div class="card mb-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="bi bi-funnel me-2"></i>Filter Sesi
+    </div>
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+            {% for s in sesi_list %}
+            <a href="{{ url_for('admin_dashboard', sesi=s.id) }}"
+               class="btn btn-sm {% if filter_nama and filter_nama.id == s.id %}btn-primary{% elif s.aktif %}btn-outline-success{% else %}btn-outline-secondary{% endif %}">
+                {% if s.aktif %}<i class="bi bi-check-circle me-1"></i>{% endif %}{{ s.nama }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill text-primary" style="font-size: 2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ stats.total }}</h3>
+                <small class="text-muted">Total Peserta</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ stats.hadir }}</h3>
+                <small class="text-muted">Hadir</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ stats.belum }}</h3>
+                <small class="text-muted">Belum Hadir</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-percent text-info" style="font-size: 2rem;"></i>
+                <h3 class="fw-bold mt-2 mb-0">{{ stats.persentase }}%</h3>
+                <small class="text-muted">Persentase</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bi bi-list-check me-2"></i>Daftar Kehadiran
+                    {% if filter_nama %} &mdash; {{ filter_nama.nama }}{% endif %}
+                </h6>
+                <small class="text-muted">Auto-refresh setiap 5 detik</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>ID</th>
+                                <th>Nama</th>
+                                <th>Divisi</th>
+                                <th>Waktu Check-in</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in absensi %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><code>{{ a.id_peserta }}</code></td>
+                                <td>{{ a.nama_peserta }}</td>
+                                <td>{{ a.divisi or '-' }}</td>
+                                <td>{{ a.waktu }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% if not absensi %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">
+                                    {% if filter_nama %}
+                                    Belum ada yang hadir di sesi {{ filter_nama.nama }}.
+                                    {% else %}
+                                    Pilih sesi untuk melihat data kehadiran.
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

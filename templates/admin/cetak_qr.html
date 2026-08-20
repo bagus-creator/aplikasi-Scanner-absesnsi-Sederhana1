@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Cetak QR Code - Absensi Event{% endblock %}
+
+{% block extra_css %}
+<style>
+    .qr-card { border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; text-align: center; transition: all 0.2s; background: #fff; }
+    .qr-card:hover { border-color: #007bff; box-shadow: 0 4px 12px rgba(0,123,255,0.15); }
+    .qr-card img { width: 160px; height: 160px; object-fit: contain; border: 1px solid #e9ecef; border-radius: 8px; padding: 4px; background: #fff; }
+    .card-print { border: 1px solid #ddd; border-radius: 10px; padding: 16px; width: 260px; margin: 8px; display: inline-block; vertical-align: top; background: #fff; text-align: center; }
+    .card-print img { width: 140px; height: 140px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-printer me-2"></i>Cetak / Download QR Code</h4>
+    <div>
+        <a href="{{ url_for('download_all_cards_pdf') }}" class="btn btn-danger"><i class="bi bi-file-pdf me-1"></i>Download Semua (PDF)</a>
+        <a href="{{ url_for('admin_peserta') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
+    </div>
+</div>
+
+<p class="text-muted mb-4">Klik tombol download untuk mengunduh kartu QR per peserta, atau download semua sekaligus dalam format PDF untuk dicetak.</p>
+
+<div class="row">
+    {% for p in peserta %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+        <div class="qr-card h-100">
+            <img src="/api/qr-image/{{ p.qrcode }}" alt="QR {{ p.nama }}" class="mb-2">
+            <h6 class="fw-bold mb-1">{{ p.nama }}</h6>
+            <small class="text-muted d-block">{{ p.id }}</small>
+            {% if p.divisi %}<small class="text-muted d-block">{{ p.divisi }}</small>{% endif %}
+            <div class="mt-2">
+                <a href="/api/download-card/{{ p.id }}" class="btn btn-primary btn-sm me-1" target="_blank" title="Download Kartu">
+                    <i class="bi bi-download"></i> Kartu
+                </a>
+                <a href="/api/download-qr/{{ p.qrcode }}" class="btn btn-outline-secondary btn-sm" target="_blank" title="Download QR Saja">
+                    <i class="bi bi-qr-code"></i> QR
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% if not peserta %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-qr-code text-muted" style="font-size: 4rem;"></i>
+        <h5 class="text-muted mt-3">Belum ada peserta</h5>
+        <a href="{{ url_for('admin_tambah_peserta') }}" class="btn btn-primary mt-2"><i class="bi bi-plus-circle me-1"></i>Tambah Peserta</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

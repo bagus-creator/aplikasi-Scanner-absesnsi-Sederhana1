@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Pengaturan - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0"><i class="bi bi-gear me-2"></i>Pengaturan</h4>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nama Event</label>
+                        <input type="text" name="event_name" class="form-control" value="{{ config.get('event_name', '') }}" placeholder="Nama acara/event">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Tanggal Event</label>
+                            <input type="date" name="event_date" class="form-control" value="{{ config.get('event_date', '') }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Lokasi Event</label>
+                            <input type="text" name="event_location" class="form-control" value="{{ config.get('event_location', '') }}" placeholder="Lokasi acara">
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-clock me-1"></i> Jam Check-In</h6>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Mulai</label>
+                            <input type="time" name="checkin_start" class="form-control" value="{{ config.get('checkin_start', '08:00') }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Selesai</label>
+                            <input type="time" name="checkin_end" class="form-control" value="{{ config.get('checkin_end', '10:00') }}">
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-clock-history me-1"></i> Jam Check-Out</h6>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Mulai</label>
+                            <input type="time" name="checkout_start" class="form-control" value="{{ config.get('checkout_start', '16:00') }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Selesai</label>
+                            <input type="time" name="checkout_end" class="form-control" value="{{ config.get('checkout_end', '18:00') }}">
+                        </div>
+                    </div>
+
+                    <hr>
+                    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-person-plus me-1"></i> Pendaftaran Peserta</h6>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="registration_open" value="true" id="regOpen" {{ 'checked' if config.get('registration_open', 'true') == 'true' else '' }}>
+                            <label class="form-check-label fw-bold" for="regOpen">Buka Pendaftaran Publik</label>
+                        </div>
+                        <small class="text-muted">Nonaktifkan untuk menutup halaman pendaftaran peserta.</small>
+                    </div>
+
+                    <hr>
+                    <h6 class="fw-bold text-muted mb-3"><i class="bi bi-envelope me-1"></i> Pengaturan Email (SMTP)</h6>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">SMTP Server</label>
+                        <input type="text" name="email_server" class="form-control" value="{{ config.get('email_server', 'smtp.gmail.com') }}" placeholder="smtp.gmail.com">
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Port</label>
+                            <input type="text" name="email_port" class="form-control" value="{{ config.get('email_port', '587') }}" placeholder="587">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email Pengirim</label>
+                        <input type="email" name="email_sender" class="form-control" value="{{ config.get('email_sender', '') }}" placeholder="emailanda@gmail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">App Password</label>
+                        <input type="password" name="email_password" class="form-control" value="{{ config.get('email_password', '') }}" placeholder="App password dari Gmail">
+                        <small class="text-muted">Gunakan <a href="https://myaccount.google.com/apppasswords" target="_blank">Gmail App Password</a>, bukan password biasa.</small>
+                    </div>
+
+                    <hr>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="notif_sound" value="true" id="notifSound" {{ 'checked' if config.get('notif_sound', 'true') == 'true' else '' }}>
+                            <label class="form-check-label fw-bold" for="notifSound">Notifikasi Suara saat Scan</label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save me-2"></i>Simpan Pengaturan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="fw-bold text-muted"><i class="bi bi-info-circle me-1"></i> Informasi Login Admin</h6>
+                <p class="mb-1">Username: <code>admin</code></p>
+                <p class="mb-0">Password: <code>admin123</code></p>
+                <small class="text-muted">Ubah di file <code>app.py</code> untuk keamanan lebih baik.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

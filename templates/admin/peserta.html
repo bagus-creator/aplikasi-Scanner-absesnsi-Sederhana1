@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Kelola Peserta - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Kelola Peserta</h4>
+    <div>
+        <a href="{{ url_for('admin_export_excel') }}" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-excel me-1"></i>Export Excel</a>
+        <a href="{{ url_for('admin_import_peserta') }}" class="btn btn-info btn-sm text-white"><i class="bi bi-upload me-1"></i>Import</a>
+        <a href="{{ url_for('admin_tambah_peserta') }}" class="btn btn-success btn-sm"><i class="bi bi-plus-circle me-1"></i>Tambah Peserta</a>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Cari nama, ID, atau divisi..." onkeyup="filterTable()">
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="pesertaTable">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Email</th>
+                        <th>No HP</th>
+                        <th>Divisi</th>
+                        <th>QR Code</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in peserta %}
+                    <tr>
+                        <td><code>{{ p.id }}</code></td>
+                        <td>{{ p.nama }}</td>
+                        <td>{{ p.email or '-' }}</td>
+                        <td>{{ p.nohp or '-' }}</td>
+                        <td>{{ p.divisi or '-' }}</td>
+                        <td><code class="small">{{ p.qrcode }}</code></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="/api/download-card/{{ p.id }}" class="btn btn-outline-primary" title="Download Kartu QR" target="_blank"><i class="bi bi-download"></i></a>
+                                <a href="/api/qr-image/{{ p.qrcode }}" class="btn btn-outline-info" title="Lihat QR" target="_blank"><i class="bi bi-qr-code"></i></a>
+                                <a href="{{ url_for('admin_hapus_peserta', pid=p.id) }}" class="btn btn-outline-danger" title="Hapus" onclick="return confirm('Hapus {{ p.nama }}?')"><i class="bi bi-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not peserta %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">Belum ada peserta. <a href="{{ url_for('admin_tambah_peserta') }}">Tambah peserta baru</a></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterTable() {
+    const val = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#pesertaTable tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(val) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

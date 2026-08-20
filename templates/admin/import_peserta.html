@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Import Peserta - Absensi Event{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0"><i class="bi bi-upload me-2"></i>Import Peserta</h4>
+            <a href="{{ url_for('admin_peserta') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Kembali</a>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <h6 class="fw-bold text-muted mb-3"><i class="bi bi-file-earmark me-1"></i> Format File</h6>
+                <p class="mb-2">File harus dalam format <strong>.xlsx</strong> atau <strong>.csv</strong> dengan kolom:</p>
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Kolom</th>
+                            <th>Wajib?</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>Nama</code></td><td class="text-danger">Ya</td><td>Nama lengkap peserta</td></tr>
+                        <tr><td><code>Email</code></td><td>Tidak</td><td>Alamat email</td></tr>
+                        <tr><td><code>NoHP</code></td><td>Tidak</td><td>Nomor HP / WhatsApp</td></tr>
+                        <tr><td><code>Divisi</code></td><td>Tidak</td><td>Divisi / Kelompok</td></tr>
+                    </tbody>
+                </table>
+                <small class="text-muted">ID Peserta dan QR Code akan otomatis dibuat untuk setiap peserta.</small>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Pilih File</label>
+                        <input type="file" name="file" class="form-control" accept=".xlsx,.csv" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-upload me-2"></i>Import Sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

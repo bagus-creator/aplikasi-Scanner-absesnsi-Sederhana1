@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Pendaftaran Berhasil - {{ config.get('event_name', 'Absensi Event') }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-id {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #198754;
+        background: #f0fdf4;
+        border: 3px solid #198754;
+        border-radius: 12px;
+        padding: 16px 32px;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center mb-4">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            <h3 class="fw-bold text-success mt-2">Pendaftaran Berhasil!</h3>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-2">Halo <strong>{{ nama }}</strong>, kamu sudah terdaftar di</p>
+                <h5 class="fw-bold mb-3">{{ config.get('event_name', 'Absensi Event') }}</h5>
+
+                <hr>
+
+                <p class="fw-bold mb-2">ID Peserta Kamu</p>
+                <div class="success-id">{{ pid }}</div>
+
+                <div class="mt-4">
+                    {% if email_ok %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-envelope-check-fill me-2"></i>
+                        ID Peserta dan QR Code sudah dikirim ke <strong>{{ email }}</strong>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Gagal mengirim email: {{ email_msg }}.<br>
+                        Namun ID kamu sudah terdaftar. Hubungi panitia untuk bantuan.
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="alert alert-info text-start">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Selanjutnya:</strong> Cek email kamu untuk melihat ID Peserta dan QR Code. Tunjukkan QR Code saat check-in di hari H.
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-5">
+                <i class="bi bi-person-plus me-2"></i>Daftar Lagi
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Daftar Peserta - {{ config.get('event_name', 'Absensi Event') }}{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center mb-4">
+            <i class="bi bi-calendar-event-fill text-primary" style="font-size: 3rem;"></i>
+            <h3 class="fw-bold text-primary mt-2">{{ config.get('event_name', 'Absensi Event') }}</h3>
+            {% if config.get('event_date') or config.get('event_location') %}
+            <p class="text-muted mb-1">
+                {% if config.get('event_date') %}<i class="bi bi-calendar3 me-1"></i>{{ config['event_date'] }}{% endif %}
+                {% if config.get('event_date') and config.get('event_location') %} &mdash; {% endif %}
+                {% if config.get('event_location') %}<i class="bi bi-geo-alt me-1"></i>{{ config['event_location'] }}{% endif %}
+            </p>
+            {% endif %}
+            <p class="text-muted small">Silakan isi form berikut untuk mendaftar</p>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nama Lengkap <span class="text-danger">*</span></label>
+                        <input type="text" name="nama" class="form-control form-control-lg" placeholder="Masukkan nama lengkap" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                        <input type="email" name="email" class="form-control" placeholder="email@contoh.com" required>
+                        <small class="text-muted">ID Peserta dan QR Code akan dikirim ke email ini</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">No. HP / WhatsApp</label>
+                        <input type="text" name="nohp" class="form-control" placeholder="08xxxxxxxxxx">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Divisi / Kelompok</label>
+                        <input type="text" name="divisi" class="form-control" placeholder="Divisi atau kelompok">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Daftar Sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>ID Peserta dan QR Code akan dikirim ke email</small>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Scan QR Code - Absensi Event{% endblock %}
+
+{% block extra_css %}
+<style>
+    #reader { max-width: 400px; margin: 0 auto; border: 3px solid #007bff; border-radius: 12px; }
+    .scan-overlay { position: relative; }
+    .scan-line { position: absolute; top: 0; left: 10%; right: 10%; height: 3px; background: #007bff; animation: scanMove 2s ease-in-out infinite; z-index: 10; border-radius: 2px; }
+    @keyframes scanMove { 0%,100% { top: 10%; } 50% { top: 90%; } }
+    .result-box { min-height: 80px; border-radius: 12px; transition: all 0.3s; }
+    #manualInput { max-width: 400px; margin: 0 auto; }
+    .sesi-badge { font-size: 1rem; padding: 8px 20px; border-radius: 50px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary"><i class="bi bi-upc-scan me-2"></i>Scan QR Code</h2>
+            <p class="text-muted">{{ config.get('event_name', '') }}</p>
+        </div>
+
+        {% if active_sesi %}
+        <div class="text-center mb-3">
+            <span class="badge bg-success sesi-badge"><i class="bi bi-calendar-check me-1"></i>Sesi Aktif: {{ active_sesi.nama }}</span>
+        </div>
+        {% else %}
+        <div class="alert alert-warning text-center mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Tidak ada sesi aktif!</strong> Silakan aktifkan sesi dari <a href="{{ url_for('admin_sesi') }}">Kelola Sesi</a> admin.
+        </div>
+        {% endif %}
+
+        <div class="card mb-4">
+            <div class="card-body scan-overlay">
+                <div id="reader"></div>
+            </div>
+        </div>
+
+        <div id="resultBox" class="card mb-4 d-none">
+            <div class="card-body result-box text-center p-4">
+                <i id="resultIcon" class="bi" style="font-size: 3rem;"></i>
+                <h5 id="resultMessage" class="mt-2"></h5>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h6 class="text-center text-muted mb-3">Atau input manual:</h6>
+                <div id="manualInput" class="input-group">
+                    <input type="text" id="manualCode" class="form-control form-control-lg" placeholder="Masukkan kode QR..." autocomplete="off">
+                    <button class="btn btn-primary btn-lg" onclick="submitManual()">
+                        <i class="bi bi-check-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <small class="text-muted">Kamera akan aktif otomatis. Arahkan ke QR Code peserta.</small>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+const notifSound = '{{ config.get("notif_sound", "true") }}' === 'true';
+let html5QrCode = null;
+let scanning = false;
+
+const audioSuccess = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgip2Onp+TfF1fdJivrJBhNjVgip2Onp+TfF1fdJivrJBhNjVgip2Onp+TfA==');
+const audioError = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgip2Onp+TfF1fdJivrJBhNjVgip2Onp+TfA==');
+const audioWarning = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgip2Onp+TfF1fdJivrJBhNjVgip2Onp+TfA==');
+
+function showResult(status, message) {
+    const box = document.getElementById('resultBox');
+    const icon = document.getElementById('resultIcon');
+    const msg = document.getElementById('resultMessage');
+    box.classList.remove('d-none', 'result-success', 'result-error', 'result-warning');
+    msg.textContent = message;
+    if (status === 'success') {
+        box.classList.add('result-success');
+        icon.className = 'bi bi-check-circle-fill text-success';
+        if (notifSound) { try { audioSuccess.play(); } catch(e) {} }
+    } else if (status === 'warning') {
+        box.classList.add('result-warning');
+        icon.className = 'bi bi-exclamation-triangle-fill text-warning';
+        if (notifSound) { try { audioWarning.play(); } catch(e) {} }
+    } else {
+        box.classList.add('result-error');
+        icon.className = 'bi bi-x-circle-fill text-danger';
+        if (notifSound) { try { audioError.play(); } catch(e) {} }
+    }
+}
+
+async function onScanSuccess(decodedText) {
+    if (scanning) return;
+    scanning = true;
+    try {
+        const res = await fetch('/api/checkin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qr_code: decodedText })
+        });
+        const data = await res.json();
+        showResult(data.status, data.message);
+        setTimeout(() => { scanning = false; }, 3000);
+    } catch(e) {
+        showResult('error', 'Gagal menghubungi server!');
+        scanning = false;
+    }
+}
+
+async function submitManual() {
+    const code = document.getElementById('manualCode').value.trim();
+    if (!code) return;
+    await onScanSuccess(code);
+    document.getElementById('manualCode').value = '';
+}
+
+document.getElementById('manualCode').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') submitManual();
+});
+
+function startScanner() {
+    if (html5QrCode) return;
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        () => {}
+    ).catch(err => {
+        document.getElementById('reader').innerHTML =
+            '<div class="text-center p-4 text-danger"><i class="bi bi-camera-video-off" style="font-size:3rem;"></i><p class="mt-2">Kamera tidak tersedia. Gunakan input manual.</p></div>';
+    });
+}
+
+startScanner();
+</script>
+{% endblock %}
